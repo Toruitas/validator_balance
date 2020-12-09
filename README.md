@@ -1,0 +1,1 @@
+curl -u :$INFURA_SECRET  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' https://mainnet.infura.io/v3/$INFURA_PROJECT_ID
