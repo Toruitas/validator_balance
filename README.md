@@ -6,6 +6,10 @@ This is a very small Python script which is intended to be run on the same box a
 
 It tries to check only once per epoch, or roughly every 6 minutes. Each validator gets its own CSV file, with data for ["timestamp", "datetime_utc","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd"]. 
 
+On the first run, if you have been running your validators for a while, be aware that the Beaconcha.in API endpoint I'm using seems to only get a maximmum of the 100 most-recent epochs. Additionally, the API doesn't get historical prices as Beaconchain doesn't provide timestamps. 
+
+In a future update, I may at least add historical pricing for those past 100 epochs, by just calculating backwards based on how many seconds are in an epoch. 
+
 I would recommend you find a solution to backup these CSV files regularly, as all this does is create them and append new data to the end.
 
 ### Pre-installation:
