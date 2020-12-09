@@ -19,4 +19,4 @@ Then you can install the script.
 3. `pipenv shell`
 4. `python validator_balance.py`
 
-Then the script will start running. 
+Then the script will start running. If the CSV files don't already exist, first they'll be created with the appropriate headers. If they do exist, on each loop the files will be opened, new data added, and saved.
