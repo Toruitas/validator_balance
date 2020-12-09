@@ -26,6 +26,10 @@ if __name__ == '__main__':
     GWEI_PER_ETH = 1000000000
     BEACONCHAIN_BASE_URL = "https://beaconcha.in/api/v1"
 
+    beaconchain_timeout = 15
+    beaconchain_timed_out = False
+    coinbase_timeout = 15
+
     # Max 10
     validators = [
         '0xa68266429de6906469b825fbe01d70b5d155963dd0d0cd640b907f1da136de843638c0fb8ec6ba62660308ae2ecbf782',
@@ -40,11 +44,18 @@ if __name__ == '__main__':
             df = pd.DataFrame(columns = ["timestamp", "datetime_utc","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd"])
             df.to_csv(f'{v}.csv')
 
-    # get ETH_USD
-    eth_usd_price = float(coinbase_client.get_spot_price(currency_pair = 'ETH-USD').amount) # only check this once for the whole loop through validators
-
     # Loop through validators, check for most recent epochs.
     while True:
+        # try:
+        #     # get ETH_USD
+        #     eth_usd_price = float(coinbase_client.get_spot_price(currency_pair = 'ETH-USD').amount) # only check this once for the whole loop through validators
+        #     coinbase_timeout = 15
+        # except requests.ConnectionError as e:
+        #     print(f"Unable to connect to Coinbase API, retrying in for {coinbase_timeout} seconds.")
+        #     time.sleep(coinbase_timeout)
+        #     coinbase_timeout += 15
+        #     continue
+        
         for v in validators:
             print(f"Updating balance sheet for validator: {v}")
             datapoints = [] # list of rows to add to DF.
@@ -55,7 +66,17 @@ if __name__ == '__main__':
             else:
                 last_recorded_epoch = 0
 
-            history = requests.get(f"{BEACONCHAIN_BASE_URL}/validator/{v}/balancehistory")
+            try:
+                history = requests.get(f"{BEACONCHAIN_BASE_URL}/validator/{v}/balancehistory")
+                beaconchain_timeout = 15
+                beaconchain_timed_out = False
+            except requests.ConnectionError as e:
+                print(f"Unable to connect to Beaconchain API, retrying in {beaconchain_timeout} seconds.")
+                time.sleep(beaconchain_timeout)
+                beaconchain_timeout += 15
+                beaconchain_timed_out = True
+                break
+
             data = history.json()['data']
             
             for epoch in data:
@@ -107,4 +128,5 @@ if __name__ == '__main__':
                 print("Validator records updated to epoch: ", df['epoch'].iloc[-1])
             else:
                 print("No new values found in epoch ", df['epoch'].iloc[-1])
-        time.sleep(SECONDS_PER_SLOT*SLOTS_PER_EPOCH/2)
+        if not beaconchain_timed_out:
+            time.sleep(SECONDS_PER_SLOT*SLOTS_PER_EPOCH/2)
