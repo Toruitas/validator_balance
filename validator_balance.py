@@ -46,15 +46,15 @@ if __name__ == '__main__':
 
     # Loop through validators, check for most recent epochs.
     while True:
-        # try:
-        #     # get ETH_USD
-        #     eth_usd_price = float(coinbase_client.get_spot_price(currency_pair = 'ETH-USD').amount) # only check this once for the whole loop through validators
-        #     coinbase_timeout = 15
-        # except requests.ConnectionError as e:
-        #     print(f"Unable to connect to Coinbase API, retrying in for {coinbase_timeout} seconds.")
-        #     time.sleep(coinbase_timeout)
-        #     coinbase_timeout += 15
-        #     continue
+        try:
+            # get ETH_USD
+            eth_usd_price = float(coinbase_client.get_spot_price(currency_pair = 'ETH-USD').amount) # only check this once for the whole loop through validators
+            coinbase_timeout = 15
+        except requests.ConnectionError as e:
+            print(f"Unable to connect to Coinbase API, retrying in for {coinbase_timeout} seconds.")
+            time.sleep(coinbase_timeout)
+            coinbase_timeout += 15
+            continue
         
         for v in validators:
             print(f"Updating balance sheet for validator: {v}")
