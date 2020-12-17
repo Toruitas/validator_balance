@@ -2,7 +2,7 @@ import os
 import requests
 import time
 import math
-from datetime import datetime
+from datetime import datetime, date
 from signal import signal, SIGINT
 from sys import exit
 
@@ -39,13 +39,21 @@ if __name__ == '__main__':
     # Initialize csv files w/ correct headers
     for v in validators:
         try:
-            df = pd.read_csv(f'{v}.csv', index_col=0)
+            df = pd.read_csv(f'csvs/lifetime/{v}.csv', index_col=0)
         except FileNotFoundError as e:
             df = pd.DataFrame(columns = ["timestamp", "datetime_utc","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd"])
-            df.to_csv(f'{v}.csv')
+            df.to_csv(f'csvs/lifetime/{v}.csv')
 
     # Loop through validators, check for most recent epochs.
     while True:
+            # open or create today's csv
+        today = date.today()
+        try:
+            df_today = pd.read_csv(f'csvs/daily/{today}.csv', index_col=0)
+        except FileNotFoundError as e:
+            df_today = pd.DataFrame(columns = ["timestamp", "datetime_utc","validator","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd"])
+            df_today.to_csv(f'csvs/daily/{today}.csv')
+
         try:
             # get ETH_USD
             eth_usd_price = float(coinbase_client.get_spot_price(currency_pair = 'ETH-USD').amount) # only check this once for the whole loop through validators
@@ -60,7 +68,7 @@ if __name__ == '__main__':
             print(f"Updating balance sheet for validator: {v}")
             datapoints = [] # list of rows to add to DF.
 
-            df = pd.read_csv(f'{v}.csv', index_col=0)
+            df = pd.read_csv(f'csvs/lifetime/{v}.csv', index_col=0)
             if len(df) > 0:
                 last_recorded_epoch = df['epoch'].iloc[-1]
             else:
@@ -122,8 +130,15 @@ if __name__ == '__main__':
                         dp["delta_eth"] = delta_eth
                         dp["delta_usd"] = delta_usd
                 
-                df = df.append(pd.DataFrame(datapoints), ignore_index=True)
-                df.to_csv(f'{v}.csv')
+                # save to the continuous/lifetime csv
+                pd_datapoints = pd.DataFrame(datapoints)
+                df = df.append(pd_datapoints, ignore_index=True)
+                df.to_csv(f'csvs/lifetime/{v}.csv')
+
+                # save to today's dataframe
+                pd_datapoints['validator'] = v
+                df_today = df_today.append(pd_datapoints, ignore_index=True)
+                df_today.to_csv(f'csvs/daily/{today}.csv')
 
                 print("Validator records updated to epoch: ", df['epoch'].iloc[-1])
             else:

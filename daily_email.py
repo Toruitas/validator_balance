@@ -1,6 +1,6 @@
 import os
 import base64
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import (Mail, Attachment, FileContent, FileName, FileType, Disposition)
 
@@ -14,7 +14,10 @@ message = Mail(
     html_content='See CSV for earnings.'
 )
 
-with open('csvs/daily/test.csv', 'rb') as f:
+today = date.today()
+yesterday = today - timedelta(days = 1) 
+
+with open(f'csvs/daily/{yesterday}.csv', 'rb') as f:
     data = f.read()
     f.close()
 encoded_file = base64.b64encode(data).decode()
