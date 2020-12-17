@@ -2,7 +2,8 @@ import os
 import requests
 import time
 import math
-from datetime import datetime, date
+import pathlib
+from datetime import datetime, date, timezone
 from signal import signal, SIGINT
 from sys import exit
 
@@ -31,10 +32,18 @@ if __name__ == '__main__':
     coinbase_timeout = 15
 
     # Max 10
+    # ADD YOUR OWN VALIDATORS HERE:
     validators = [
         '0xa68266429de6906469b825fbe01d70b5d155963dd0d0cd640b907f1da136de843638c0fb8ec6ba62660308ae2ecbf782',
         '0x9891e4522462230f6cdce5fc78dba78a99d6e82cc476feda0f91b6e8bd88f430038f086f90b2bea2f2fd9a2fa940897c'
         ]
+
+    if len(validators) < 1:
+        print('No validators added, please add validators before starting the program')
+        exit(0)
+
+    pathlib.Path('./csvs/lifetime/').mkdir(parents=True, exist_ok=True)
+    pathlib.Path('./csvs/daily/').mkdir(parents=True, exist_ok=True)
 
     # Initialize csv files w/ correct headers
     for v in validators:
@@ -46,8 +55,9 @@ if __name__ == '__main__':
 
     # Loop through validators, check for most recent epochs.
     while True:
-            # open or create today's csv
-        today = date.today()
+        # open or create today's csv. Using UTC.
+        now_utc = datetime.now(timezone.utc)
+        today = now_utc.date()
         try:
             df_today = pd.read_csv(f'csvs/daily/{today}.csv', index_col=0)
         except FileNotFoundError as e:
@@ -94,7 +104,7 @@ if __name__ == '__main__':
                     # leave deltas to 0 for now, we'll re-calculate shortly
                     row_to_add = {
                         "timestamp": int(time.time()), 
-                        "datetime_utc": str(datetime.utcnow()), 
+                        "datetime_utc": str(now_utc), 
                         "epoch": epoch["epoch"], 
                         "effective_balance_eth": epoch["effectivebalance"]/GWEI_PER_ETH, 
                         "balance_eth": balance_eth, 
