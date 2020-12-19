@@ -54,7 +54,7 @@ EOF
 11. `sudo systemctl enable validator_balance.service`
 12. `sudo systemctl start validator_balance` (see any logs with `journalctl -fu validator_balance.service`)
 13. Set system to use UTC. The scripts all use UTC, and since you're using a dedicated staking machine, you can too!. (How do I change my timezone to UTC/GMT?)[https://askubuntu.com/a/138442/448606]
-14. `crontab -e` and add `0 1 * * * $(which pipenv) run python $(echo $HOME)/validator_balance/validator_balance.py >> ~/cron.log` to the bottom. This will run the email script daily at 1am UTC.
+14. `crontab -e` and add `0 1 * * * $(which pipenv) run python $(echo $HOME)/validator_balance/validator_balance.py >> ~/cron.log` to the bottom. This will run the email script daily at 1am UTC, and put any logs in `~/cron.log`.
 15. `reboot` and you're golden.
 
 Then the script will start running. If the CSV files don't already exist, first they'll be created with the appropriate headers. If they do exist, on each loop the files will be opened, new data added, and saved.
