@@ -42,6 +42,7 @@ Group=$(whoami)
 WorkingDirectory=$(echo $HOME)/validator_balance
 ExecStart=$(which pipenv) run python $(echo $HOME)/validator_balance/validator_balance.py
 Restart=always
+RestartSec=300
 
 [Install]
 WantedBy=multi-user.target
