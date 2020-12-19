@@ -17,10 +17,35 @@ Register for Coinbase if you haven't and create an API key. One you are logged i
 
 Then you can install the script.
 
-### Installation
-1. `pipenv install`
-2. Export environment variables for COINBASE_API_KEY and COINBASE_SECRET
-3. `pipenv shell`
-4. `python validator_balance.py`
+### Installation (Linux)
+0. `cd ~` (if using a different directory, you'll ahave to adjust the service files)
+1. `git clone https://github.com/Toruitas/validator_balance.git && cd validator_balance`
+2. `pipenv install`
+3. Export environment variables for COINBASE_API_KEY, COINBASE_SECRET, SENDGRID_API_KEY, and TO_EMAIL
+4. `pipenv run python validator_balance.py`
+5. (new shell) `pipenv run python daily_email.py`
+6. If they run succesfully, go ahead and make the service files.
+
+Copy and paste this in the terminal to create the file for validator_balance.py:
+```
+cat > $HOME/validator_balance.service << EOF 
+[Unit]
+Description=Validator balance service
+Wants=network-online.target
+After=network-online.target 
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+User=$(whoami)
+Group=$(whoami)
+WorkingDirectory=$(echo $HOME)/validator_balance
+ExecStart=$(which pipenv) run python $(echo $HOME)/validator_balance/validator_balance.py
+Restart=always
+
+[Install]
+WantedBy    = multi-user.target
+EOF
+```
 
 Then the script will start running. If the CSV files don't already exist, first they'll be created with the appropriate headers. If they do exist, on each loop the files will be opened, new data added, and saved.
