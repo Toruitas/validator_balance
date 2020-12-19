@@ -52,7 +52,7 @@ EOF
 9. `sudo mv $HOME/validator_balance.service /etc/systemd/system/validator_balance.service`
 10. `sudo systemctl daemon-reload`
 11. `sudo systemctl enable validator_balance.service`
-12. `sudo systemctl start  validator_balance`
+12. `sudo systemctl start validator_balance` (see any logs with `journalctl -fu validator_balance.service`)
 13. Set system to use UTC. The scripts all use UTC, and since you're using a dedicated staking machine, you can too!. (How do I change my timezone to UTC/GMT?)[https://askubuntu.com/a/138442/448606]
 14. `crontab -e` and add `0 1 * * * $(which pipenv) run python $(echo $HOME)/validator_balance/validator_balance.py >> ~/cron.log` to the bottom. This will run the email script daily at 1am UTC.
 15. `reboot` and you're golden.
