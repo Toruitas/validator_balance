@@ -21,12 +21,12 @@ Then you can install the script.
 0. `cd ~` (if using a different directory, you'll ahave to adjust the service files)
 1. `git clone https://github.com/Toruitas/validator_balance.git && cd validator_balance`
 2. `pipenv install`
-3. Export environment variables for COINBASE_API_KEY, COINBASE_SECRET, SENDGRID_API_KEY, and TO_EMAIL
-4. `pipenv run python validator_balance.py`
-5. (new shell) `pipenv run python daily_email.py`
-6. If they run succesfully, go ahead and make the service files.
-
-Copy and paste this in the terminal to create the file for validator_balance.py:
+3. Export environment variables for COINBASE_API_KEY, COINBASE_SECRET, SENDGRID_API_KEY, and TO_EMAIL. You can put them into a `.env` file in /validator_balance and pipenv will load them automatically as part of `pipenv run`
+4. Add your validators to `validator_balance.py`. Sorry, max of 10.
+5. `pipenv run python validator_balance.py`
+6. (new shell) `pipenv run python daily_email.py`
+7. If they run succesfully, go ahead and make the service and cron files.
+8. Copy and paste this in the terminal to create the service file for `validator_balance.py` (you might want to make sure the formatting is correct first, use `nano`):
 ```
 cat > $HOME/validator_balance.service << EOF 
 [Unit]
@@ -44,8 +44,16 @@ ExecStart=$(which pipenv) run python $(echo $HOME)/validator_balance/validator_b
 Restart=always
 
 [Install]
-WantedBy    = multi-user.target
+WantedBy=multi-user.target
 EOF
 ```
+
+9. `sudo mv $HOME/validator_balance.service /etc/systemd/system/validator_balance.service`
+10. `sudo systemctl daemon-reload`
+11. `sudo systemctl enable validator_balance.service`
+12. `sudo systemctl start  validator_balance`
+13. Set system to use UTC. The scripts all use UTC, and since you're using a dedicated staking machine, you can too!. (How do I change my timezone to UTC/GMT?)[https://askubuntu.com/a/138442/448606]
+14. `crontab -e` and add `0 1 * * * $(which pipenv) run python $(echo $HOME)/validator_balance/validator_balance.py >> ~/cron.log` to the bottom. This will run the email script daily at 1am UTC.
+15. `reboot` and you're golden.
 
 Then the script will start running. If the CSV files don't already exist, first they'll be created with the appropriate headers. If they do exist, on each loop the files will be opened, new data added, and saved.

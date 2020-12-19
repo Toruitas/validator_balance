@@ -20,6 +20,16 @@ if __name__ == '__main__':
     signal(SIGINT, handler)
     print('Running. Press CTRL-C to exit.')
 
+    # ADD YOUR OWN VALIDATORS HERE (Max 10):
+    validators = [
+        # '0xa68266429de6906469b825fbe01d70b5d155963dd0d0cd640b907f1da136de843638c0fb8ec6ba62660308ae2ecbf782',
+        # '0x9891e4522462230f6cdce5fc78dba78a99d6e82cc476feda0f91b6e8bd88f430038f086f90b2bea2f2fd9a2fa940897c'
+        ]
+
+    if len(validators) < 1:
+        print('No validators added, please add validators before starting the program')
+        exit(0)
+
     coinbase_client = Client(os.environ.get("COINBASE_API_KEY"), os.environ.get("COINBASE_SECRET"))
 
     SECONDS_PER_SLOT = 12
@@ -30,17 +40,6 @@ if __name__ == '__main__':
     beaconchain_timeout = 15
     beaconchain_timed_out = False
     coinbase_timeout = 15
-
-    # Max 10
-    # ADD YOUR OWN VALIDATORS HERE:
-    validators = [
-        '0xa68266429de6906469b825fbe01d70b5d155963dd0d0cd640b907f1da136de843638c0fb8ec6ba62660308ae2ecbf782',
-        '0x9891e4522462230f6cdce5fc78dba78a99d6e82cc476feda0f91b6e8bd88f430038f086f90b2bea2f2fd9a2fa940897c'
-        ]
-
-    if len(validators) < 1:
-        print('No validators added, please add validators before starting the program')
-        exit(0)
 
     pathlib.Path('./csvs/lifetime/').mkdir(parents=True, exist_ok=True)
     pathlib.Path('./csvs/daily/').mkdir(parents=True, exist_ok=True)
