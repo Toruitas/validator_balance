@@ -24,7 +24,7 @@ IMPORTANT: You need pipenv if you don't want to heavily change the process here,
 1. `git clone https://github.com/Toruitas/validator_balance.git && cd validator_balance`
 2. `pipenv install`
 3. Export environment variables for COINBASE_API_KEY, COINBASE_SECRET, SENDGRID_API_KEY, and TO_EMAIL. You can put them into a `.env` file in /validator_balance and pipenv will load them automatically as part of `pipenv run`
-4. Add your validators to `validator_balance.py`. Sorry, max of 10.
+4. Add your validators to `validator_balance.py`. Sorry, max of 10 due to the API limits.
 5. `pipenv run python validator_balance.py`
 6. (new shell) `pipenv run python daily_email.py`
 7. If they run succesfully, go ahead and make the service and cron files.
