@@ -17,6 +17,8 @@ Register for Coinbase if you haven't and create an API key. One you are logged i
 
 Then you can install the script.
 
+IMPORTANT: You need pipenv if you don't want to heavily change the process here, which you can now install easily with `sudo apt install pipenv`
+
 ### Installation (Linux)
 0. `cd ~` (if using a different directory, you'll ahave to adjust the service files)
 1. `git clone https://github.com/Toruitas/validator_balance.git && cd validator_balance`
