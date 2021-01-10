@@ -19,7 +19,9 @@ try:
         data = f.read()
         f.close()
     attach_file = True
-    body_content = f"The staking server is up, and there is 1 attachment for today, {today}."
+    body_content = f"The staking server is up, and there is 1 attachment for today, {today}.\n"
+    if today.day == 1 and today.month == 1:
+        body_content += f"Today is the first day of the new year. Last year's completed annual report is ready. Log into the staking box to transfer it."
 except FileNotFoundError as e:
     print(f"Yesterday's file 'csvs/daily/{yesterday}.csv' not found. Proceeding without attachment.")
     attach_file = False
