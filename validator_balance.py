@@ -23,7 +23,7 @@ if __name__ == '__main__':
     # ADD YOUR OWN VALIDATORS HERE (Max 10):
     validators = [
         # '0xa68266429de6906469b825fbe01d70b5d155963dd0d0cd640b907f1da136de843638c0fb8ec6ba62660308ae2ecbf782',
-        # '0x9891e4522462230f6cdce5fc78dba78a99d6e82cc476feda0f91b6e8bd88f430038f086f90b2bea2f2fd9a2fa940897c'
+        # '0x9891e4522462230f6cdce5fc78dba7p8a99d6e82cc476feda0f91b6e8bd88f430038f086f90b2bea2f2fd9a2fa940897c'
         ]
 
     if len(validators) < 1:
@@ -42,6 +42,7 @@ if __name__ == '__main__':
     coinbase_timeout = 15
 
     pathlib.Path('./csvs/lifetime/').mkdir(parents=True, exist_ok=True)
+    pathlib.Path('./csvs/annual/').mkdir(parents=True, exist_ok=True)
     pathlib.Path('./csvs/daily/').mkdir(parents=True, exist_ok=True)
 
     # Initialize csv files w/ correct headers
@@ -62,6 +63,12 @@ if __name__ == '__main__':
         except FileNotFoundError as e:
             df_today = pd.DataFrame(columns = ["timestamp", "datetime_utc","validator","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd"])
             df_today.to_csv(f'csvs/daily/{today}.csv')
+
+        try:
+            df_this_year = pd.read_csv(f'csvs/annual/{today.year}.csv', index_col=0)
+        except FileNotFoundError as e:
+            df_this_year = pd.DataFrame(columns = ["timestamp", "datetime_utc","validator","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd"])
+            df_this_year.to_csv(f'csvs/annual/{today.year}.csv')
 
         try:
             # get ETH_USD
@@ -95,7 +102,11 @@ if __name__ == '__main__':
                 break
 
             data = history.json()['data']
-            
+
+            if not data:
+                print("No data found, is the validator public key correctly entered?")            
+                continue
+
             for epoch in data:
                 if epoch['epoch'] > last_recorded_epoch:
                     balance_eth = (epoch["balance"]/GWEI_PER_ETH)
@@ -148,6 +159,8 @@ if __name__ == '__main__':
                 pd_datapoints['validator'] = v
                 df_today = df_today.append(pd_datapoints, ignore_index=True)
                 df_today.to_csv(f'csvs/daily/{today}.csv')
+                df_this_year = df_this_year.append(pd_datapoints, ignore_index=True)
+                df_this_year.to_csv(f'csvs/annual/{today.year}.csv')
 
                 print("Validator records updated to epoch: ", df['epoch'].iloc[-1])
             else:
