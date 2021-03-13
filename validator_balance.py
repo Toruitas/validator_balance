@@ -35,6 +35,7 @@ if __name__ == '__main__':
 
     SECONDS_PER_SLOT = 12
     SLOTS_PER_EPOCH = 32
+    SYNC_EVERY_N_EPOCHS = 3
     GWEI_PER_ETH = 1000000000
     BEACONCHAIN_BASE_URL = "https://beaconcha.in/api/v1"
 
@@ -178,4 +179,4 @@ if __name__ == '__main__':
             else:
                 print("No new values found in epoch ", df['epoch'].iloc[-1])
         if not beaconchain_timed_out:
-            time.sleep(SECONDS_PER_SLOT*SLOTS_PER_EPOCH/2)
+            time.sleep(SECONDS_PER_SLOT*SLOTS_PER_EPOCH*SYNC_EVERY_N_EPOCHS)
