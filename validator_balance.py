@@ -23,7 +23,8 @@ if __name__ == '__main__':
     # ADD YOUR OWN VALIDATORS HERE (Max 10):
     validators = [
         # '0xa68266429de6906469b825fbe01d70b5d155963dd0d0cd640b907f1da136de843638c0fb8ec6ba62660308ae2ecbf782',
-        # '0x9891e4522462230f6cdce5fc78dba7p8a99d6e82cc476feda0f91b6e8bd88f430038f086f90b2bea2f2fd9a2fa940897c'
+        # '0x9891e4522462230f6cdce5fc78dba7p8a99d6e82cc476feda0f91b6e8bd88f430038f086f90b2bea2f2fd9a2fa940897c',
+
         ]
 
     if len(validators) < 1:
@@ -50,7 +51,7 @@ if __name__ == '__main__':
         try:
             df = pd.read_csv(f'csvs/lifetime/{v}.csv', index_col=0)
         except FileNotFoundError as e:
-            df = pd.DataFrame(columns = ["timestamp", "datetime_utc","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd"])
+            df = pd.DataFrame(columns = ["timestamp", "datetime_utc","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd","balance_gbp","delta_gbp"])
             df.to_csv(f'csvs/lifetime/{v}.csv')
 
     # Loop through validators, check for most recent epochs.
@@ -73,6 +74,7 @@ if __name__ == '__main__':
         try:
             # get ETH_USD
             eth_usd_price = float(coinbase_client.get_spot_price(currency_pair = 'ETH-USD').amount) # only check this once for the whole loop through validators
+            eth_gbp_price = float(coinbase_client.get_spot_price(currency_pair = 'ETH-GBP').amount) # only check this once for the whole loop through validators
             coinbase_timeout = 15
         except requests.ConnectionError as e:
             print(f"Unable to connect to Coinbase API, retrying in for {coinbase_timeout} seconds.")
@@ -101,7 +103,9 @@ if __name__ == '__main__':
                 beaconchain_timed_out = True
                 break
 
-            data = history.json()['data']
+            print(history)
+
+            data = history.json().get('data')
 
             if not data:
                 print("No data found, is the validator public key correctly entered?")            
@@ -111,6 +115,7 @@ if __name__ == '__main__':
                 if epoch['epoch'] > last_recorded_epoch:
                     balance_eth = (epoch["balance"]/GWEI_PER_ETH)
                     balance_usd = balance_eth*eth_usd_price
+                    balance_gbp = balance_eth*eth_gbp_price
                     # leave deltas to 0 for now, we'll re-calculate shortly
                     row_to_add = {
                         "timestamp": int(time.time()), 
@@ -120,7 +125,9 @@ if __name__ == '__main__':
                         "balance_eth": balance_eth, 
                         "delta_eth": 0, 
                         "balance_usd": balance_usd, 
-                        "delta_usd": 0
+                        "delta_usd": 0,
+                        "balance_gbp":balance_gbp,
+                        "delta_gbp":0
                     }
                     datapoints.append(row_to_add)
                 else:
@@ -140,15 +147,20 @@ if __name__ == '__main__':
                         if len(df) > 0:
                             last_eth_balance = df['balance_eth'].iloc[-1]
                             last_usd_balance = df['balance_usd'].iloc[-1]
+                            last_gbp_balance = df['balance_gbp'].iloc[-1]
                             delta_eth = dp["balance_eth"] - last_eth_balance
                             delta_usd = delta_eth * eth_usd_price  # don't want to do the delta between last usd balance and current, as there may have been price flux. Price flux goes into capital gains/losses
+                            delta_gbp = delta_eth * eth_gbp_price
                             dp["delta_eth"] = delta_eth
                             dp["delta_usd"] = delta_usd
+                            dp["delta_gbp"] = delta_gbp
                     else:
                         delta_eth = dp["balance_eth"] - datapoints[idx-1]["balance_eth"]
                         delta_usd = delta_eth * eth_usd_price
+                        delta_gbp = delta_eth * eth_gbp_price
                         dp["delta_eth"] = delta_eth
                         dp["delta_usd"] = delta_usd
+                        dp["delta_gbp"] = delta_gbp
                 
                 # save to the continuous/lifetime csv
                 pd_datapoints = pd.DataFrame(datapoints)
