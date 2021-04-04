@@ -63,13 +63,13 @@ if __name__ == '__main__':
         try:
             df_today = pd.read_csv(f'csvs/daily/{today}.csv', index_col=0)
         except FileNotFoundError as e:
-            df_today = pd.DataFrame(columns = ["timestamp", "datetime_utc","validator","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd"])
+            df_today = pd.DataFrame(columns = ["timestamp", "datetime_utc","validator","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd","balance_gbp","delta_gbp"])
             df_today.to_csv(f'csvs/daily/{today}.csv')
 
         try:
             df_this_year = pd.read_csv(f'csvs/annual/{today.year}.csv', index_col=0)
         except FileNotFoundError as e:
-            df_this_year = pd.DataFrame(columns = ["timestamp", "datetime_utc","validator","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd"])
+            df_this_year = pd.DataFrame(columns = ["timestamp", "datetime_utc","validator","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd","balance_gbp","delta_gbp"])
             df_this_year.to_csv(f'csvs/annual/{today.year}.csv')
 
         try:
