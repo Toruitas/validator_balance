@@ -55,6 +55,7 @@ if __name__ == '__main__':
                 df["balance_gbp"] = 0
             if "delta_gbp" not in df:
                 df["delta_gbp"] = 0
+            df.to_csv(f'csvs/lifetime/{v}.csv')
         except FileNotFoundError as e:
             df = pd.DataFrame(columns = ["timestamp", "datetime_utc","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd","balance_gbp","delta_gbp"])
             df.to_csv(f'csvs/lifetime/{v}.csv')
@@ -70,6 +71,7 @@ if __name__ == '__main__':
                 df_today["balance_gbp"] = 0
             if "delta_gbp" not in df_today:
                 df_today["delta_gbp"] = 0
+            df_today.to_csv(f'csvs/daily/{today}.csv')
         except FileNotFoundError as e:
             df_today = pd.DataFrame(columns = ["timestamp", "datetime_utc","validator","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd","balance_gbp","delta_gbp"])
             df_today.to_csv(f'csvs/daily/{today}.csv')
@@ -80,6 +82,7 @@ if __name__ == '__main__':
                 df_this_year["balance_gbp"] = 0
             if "delta_gbp" not in df_this_year:
                 df_this_year["delta_gbp"] = 0
+            df_this_year.to_csv(f'csvs/annual/{today.year}.csv')
         except FileNotFoundError as e:
             df_this_year = pd.DataFrame(columns = ["timestamp", "datetime_utc","validator","epoch","effective_balance_eth","balance_eth","delta_eth","balance_usd","delta_usd","balance_gbp","delta_gbp"])
             df_this_year.to_csv(f'csvs/annual/{today.year}.csv')
